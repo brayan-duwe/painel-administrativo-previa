@@ -123,44 +123,80 @@ const MENU = [
   { id: "config", icon: "⚙️", label: "Configurações" },
 ];
 
-function Sidebar({ active, setActive, darkMode, setDarkMode }) {
+function Sidebar({ active, setActive, darkMode, setDarkMode, collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const t = useTheme();
+  const w = collapsed ? 68 : 240;
+
+  const handleNav = (id) => { setActive(id); setMobileOpen(false); };
+
   return (
-    <div style={{ width: 240, minHeight: "100vh", background: t.sidebarBg, borderRight: `1px solid ${t.sidebarBorder}`, padding: "20px 0", display: "flex", flexDirection: "column", position: "fixed", left: 0, top: 0, bottom: 0, zIndex: 50 }}>
-      <div style={{ padding: "0 24px 28px", display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ fontSize: 20, fontWeight: 800, color: t.accent, letterSpacing: 2 }}>REPAIR</span>
-        <span style={{ fontSize: 20, fontWeight: 800, color: t.text, letterSpacing: 2 }}>PRO</span>
-        <span style={{ fontSize: 10, background: t.accentBg, color: t.accent, padding: "2px 8px", borderRadius: 4, fontWeight: 700, marginLeft: 4 }}>ADMIN</span>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 12px" }}>
-        {MENU.map(item => (
-          <button key={item.id} onClick={() => setActive(item.id)}
-            style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: active === item.id ? 700 : 500, color: active === item.id ? t.text : t.textHint, background: active === item.id ? t.accentBg : "transparent", transition: "all 0.15s", textAlign: "left" }}>
-            <span style={{ fontSize: 16 }}>{item.icon}</span>
-            {item.label}
-            {active === item.id && <div style={{ marginLeft: "auto", width: 4, height: 4, borderRadius: "50%", background: t.accent }} />}
-          </button>
-        ))}
-      </div>
-      <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 14 }}>
-        <div style={{ padding: "0 24px" }}>
-          <button onClick={() => setDarkMode(m => !m)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", border: `1px solid ${t.border}`, borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, color: t.textSecondary, background: t.bgCard }}>
-            <span>{darkMode ? "🌙 Modo escuro" : "☀️ Modo claro"}</span>
-            <div style={{ width: 36, height: 20, borderRadius: 10, background: darkMode ? t.accent : t.borderInput, position: "relative", transition: "background 0.2s" }}>
-              <div style={{ width: 16, height: 16, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: darkMode ? 18 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
-            </div>
-          </button>
+    <>
+      {mobileOpen && <div onClick={() => setMobileOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 49 }} />}
+      <div style={{ width: w, minHeight: "100vh", background: t.sidebarBg, borderRight: `1px solid ${t.sidebarBorder}`, padding: "20px 0", display: "flex", flexDirection: "column", position: "fixed", left: mobileOpen ? 0 : undefined, top: 0, bottom: 0, zIndex: 50, transition: "width 0.2s", overflow: "hidden" }}>
+
+        <div style={{ padding: collapsed ? "0 12px 20px" : "0 24px 28px", display: "flex", alignItems: "center", gap: 6, justifyContent: collapsed ? "center" : "flex-start" }}>
+          {collapsed ? (
+            <span style={{ fontSize: 20, fontWeight: 800, color: t.accent }}>R</span>
+          ) : (
+            <>
+              <span style={{ fontSize: 20, fontWeight: 800, color: t.accent, letterSpacing: 2, whiteSpace: "nowrap" }}>REPAIR</span>
+              <span style={{ fontSize: 20, fontWeight: 800, color: t.text, letterSpacing: 2, whiteSpace: "nowrap" }}>PRO</span>
+              <span style={{ fontSize: 10, background: t.accentBg, color: t.accent, padding: "2px 8px", borderRadius: 4, fontWeight: 700, marginLeft: 4, whiteSpace: "nowrap" }}>ADMIN</span>
+            </>
+          )}
         </div>
-        <div style={{ padding: "14px 24px", borderTop: `1px solid ${t.sidebarBorder}` }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: t.accentBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, color: t.accent, fontWeight: 700 }}>B</div>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: t.text }}>Brayan</div>
-              <div style={{ fontSize: 11, color: t.textTertiary }}>Administrador</div>
+
+        <button onClick={() => setCollapsed(c => !c)} style={{ display: "flex", alignItems: "center", justifyContent: "center", margin: collapsed ? "0 auto 12px" : "0 12px 12px 12px", width: collapsed ? 40 : "auto", padding: "6px 10px", border: `1px solid ${t.border}`, borderRadius: 8, cursor: "pointer", fontSize: 14, color: t.textTertiary, background: t.bgCard }}>
+          {collapsed ? "→" : "← Recolher"}
+        </button>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: collapsed ? "0 8px" : "0 12px" }}>
+          {MENU.map(item => (
+            <button key={item.id} onClick={() => handleNav(item.id)} title={collapsed ? item.label : undefined}
+              style={{ display: "flex", alignItems: "center", gap: 12, padding: collapsed ? "11px 0" : "11px 14px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: active === item.id ? 700 : 500, color: active === item.id ? t.text : t.textHint, background: active === item.id ? t.accentBg : "transparent", transition: "all 0.15s", textAlign: "left", justifyContent: collapsed ? "center" : "flex-start" }}>
+              <span style={{ fontSize: 18 }}>{item.icon}</span>
+              {!collapsed && item.label}
+              {!collapsed && active === item.id && <div style={{ marginLeft: "auto", width: 4, height: 4, borderRadius: "50%", background: t.accent }} />}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ padding: collapsed ? "0 8px" : "0 24px" }}>
+            <button onClick={() => setDarkMode(m => !m)} title={collapsed ? (darkMode ? "Modo claro" : "Modo escuro") : undefined}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "space-between", padding: collapsed ? "10px 0" : "10px 14px", border: `1px solid ${t.border}`, borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, color: t.textSecondary, background: t.bgCard }}>
+              <span>{collapsed ? (darkMode ? "🌙" : "☀️") : (darkMode ? "🌙 Escuro" : "☀️ Claro")}</span>
+              {!collapsed && (
+                <div style={{ width: 36, height: 20, borderRadius: 10, background: darkMode ? t.accent : t.borderInput, position: "relative", transition: "background 0.2s" }}>
+                  <div style={{ width: 16, height: 16, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: darkMode ? 18 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+                </div>
+              )}
+            </button>
+          </div>
+          <div style={{ padding: collapsed ? "14px 8px" : "14px 24px", borderTop: `1px solid ${t.sidebarBorder}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: collapsed ? "center" : "flex-start" }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: t.accentBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, color: t.accent, fontWeight: 700, flexShrink: 0 }}>B</div>
+              {!collapsed && (
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: t.text, whiteSpace: "nowrap" }}>Brayan</div>
+                  <div style={{ fontSize: 11, color: t.textTertiary, whiteSpace: "nowrap" }}>Administrador</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+function MobileHeader({ setMobileOpen }) {
+  const t = useTheme();
+  return (
+    <div style={{ display: "none", position: "sticky", top: 0, zIndex: 40, background: t.bg, borderBottom: `1px solid ${t.border}`, padding: "12px 16px", alignItems: "center", gap: 12 }}>
+      <button onClick={() => setMobileOpen(true)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: t.text, padding: 4 }}>☰</button>
+      <span style={{ fontSize: 16, fontWeight: 800, color: t.accent }}>REPAIR</span>
+      <span style={{ fontSize: 16, fontWeight: 800, color: t.text }}>PRO</span>
     </div>
   );
 }
@@ -193,7 +229,7 @@ function DashboardPage({ setActive }) {
         <p style={{ fontSize: 14, color: t.textHint, margin: 0 }}>Resumo geral da plataforma</p>
       </div>
 
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }} className="kpi-grid">
         <KPICard icon="👷" value={d.kpis.profissionais.toLocaleString()} label="Profissionais ativos" trend={8} />
         <KPICard icon="📋" value={d.kpis.pedidosHoje} label="Serviços hoje" trend={12} />
         <KPICard icon="💵" value={`R$ ${d.kpis.receitaDia.toLocaleString()}`} label="Receita do dia" trend={5} />
@@ -201,7 +237,7 @@ function DashboardPage({ setActive }) {
         <KPICard icon="⭐" value={d.kpis.avaliacaoMedia} label="Avaliação média" trend={2} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="grid-2col">
         <div style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: 14, padding: 22 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: t.text, marginBottom: 16 }}>Cadastros pendentes</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -231,7 +267,7 @@ function DashboardPage({ setActive }) {
                 </div>
                 <div style={{ fontSize: 12, color: t.textHint }}>{den.motivo}</div>
                 <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-                  <button style={{ background: "rgba(255,107,53,0.15)", border: "1px solid rgba(255,107,53,0.3)", borderRadius: 8, padding: "5px 12px", color: t.accent, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Analisar</button>
+                  <button style={{ background: t.accentBg, border: `1px solid ${t.accentBorder}`, borderRadius: 8, padding: "5px 12px", color: t.accent, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Analisar</button>
                   <button style={{ background: t.bgTag, border: `1px solid ${t.borderInput}`, borderRadius: 8, padding: "5px 12px", color: t.textHint, fontSize: 11, cursor: "pointer" }}>Ignorar</button>
                 </div>
               </div>
@@ -253,7 +289,7 @@ function DashboardPage({ setActive }) {
       <div style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: 14, padding: 22 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: t.text }}>🎧 Suporte</div>
-          <button onClick={() => setActive("suporte")} style={{ background: "rgba(255,107,53,0.15)", border: "1px solid rgba(255,107,53,0.3)", borderRadius: 8, padding: "6px 14px", color: t.accent, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+          <button onClick={() => setActive("suporte")} style={{ background: t.accentBg, border: `1px solid ${t.accentBorder}`, borderRadius: 8, padding: "6px 14px", color: t.accent, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
             Ver todos os tickets →
           </button>
         </div>
@@ -332,9 +368,9 @@ function ProfissionaisPage() {
 
       <div style={{ display: "flex", gap: 8 }}>
         {[["pendentes","Cadastros Pendentes", d.pendentes.length],["ativos","Profissionais Ativos", d.profissionais.filter(p=>p.status==="ativo").length],["denuncias","Denúncias", d.denuncias.length]].map(([id, label, count]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 18px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, background: tab === id ? "#FF6B35" : "rgba(255,255,255,0.05)", color: tab === id ? "#fff" : "rgba(255,255,255,0.45)", transition: "all 0.15s" }}>
+          <button key={id} onClick={() => setTab(id)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 18px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, background: tab === id ? t.accent : t.bgTag, color: tab === id ? t.text : t.textSecondary, transition: "all 0.15s" }}>
             {label}
-            <span style={{ background: tab === id ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", borderRadius: 100, padding: "1px 8px", fontSize: 11 }}>{count}</span>
+            <span style={{ background: tab === id ? "rgba(255,255,255,0.2)" : t.bgTag, borderRadius: 100, padding: "1px 8px", fontSize: 11 }}>{count}</span>
           </button>
         ))}
       </div>
@@ -500,7 +536,7 @@ function PedidosPage() {
 
       <div style={{ display: "flex", gap: 8 }}>
         {[["todos","Todos"],["andamento","Em andamento"],["concluido","Concluídos"],["disputa","Em disputa"]].map(([id, label]) => (
-          <button key={id} onClick={() => setFilter(id)} style={{ padding: "9px 16px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, background: filter === id ? "#FF6B35" : "rgba(255,255,255,0.05)", color: filter === id ? "#fff" : "rgba(255,255,255,0.45)" }}>
+          <button key={id} onClick={() => setFilter(id)} style={{ padding: "9px 16px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, background: filter === id ? t.accent : t.bgTag, color: filter === id ? t.text : t.textSecondary }}>
             {label}
           </button>
         ))}
@@ -519,7 +555,7 @@ function PedidosPage() {
               <span style={{ fontSize: 16, fontWeight: 800, color: t.text }}>R$ {p.valor}</span>
               <Badge status={p.status} />
               {p.status === "disputa" && (
-                <button style={{ background: "rgba(255,107,53,0.15)", border: "1px solid rgba(255,107,53,0.3)", borderRadius: 8, padding: "7px 14px", color: t.accent, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Mediar</button>
+                <button style={{ background: t.accentBg, border: `1px solid ${t.accentBorder}`, borderRadius: 8, padding: "7px 14px", color: t.accent, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Mediar</button>
               )}
             </div>
           </div>
@@ -546,7 +582,7 @@ function FinanceiroPage() {
         <p style={{ fontSize: 14, color: t.textHint, margin: 0 }}>Receita, contas a pagar, contas a receber e comissões</p>
       </div>
 
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }} className="kpi-grid">
         <KPICard icon="💰" value={`R$ ${(d.kpis.receitaMes/1000).toFixed(1)}k`} label="Receita total do mês" trend={15} />
         <KPICard icon="📥" value={`R$ ${totalReceber.toFixed(0)}`} label="A receber" />
         <KPICard icon="📤" value={`R$ ${(totalPagar/1000).toFixed(1)}k`} label="A pagar" />
@@ -555,14 +591,14 @@ function FinanceiroPage() {
 
       <div style={{ display: "flex", gap: 8 }}>
         {[["resumo","Resumo"],["receber","Contas a Receber"],["pagar","Contas a Pagar"],["comissoes","Comissões"]].map(([id, label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding: "10px 18px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, background: tab === id ? "#FF6B35" : "rgba(255,255,255,0.05)", color: tab === id ? "#fff" : "rgba(255,255,255,0.45)" }}>
+          <button key={id} onClick={() => setTab(id)} style={{ padding: "10px 18px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, background: tab === id ? t.accent : t.bgTag, color: tab === id ? t.text : t.textSecondary }}>
             {label}
           </button>
         ))}
       </div>
 
       {tab === "resumo" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="grid-2col">
           <div style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: 14, padding: 22 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: t.text, marginBottom: 16 }}>Repasses pendentes</div>
             {d.profissionais.filter(p => p.status === "ativo" && p.revenue > 2000).map(p => (
@@ -697,7 +733,7 @@ function FinanceiroPage() {
       )}
 
       {tab === "comissoes" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="grid-2col">
           <div style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: 14, padding: 22 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: t.text, marginBottom: 16 }}>Taxa por categoria</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -705,7 +741,7 @@ function FinanceiroPage() {
                 <div key={cat} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: t.bgRow, borderRadius: 8 }}>
                   <span style={{ fontSize: 13, color: t.text, fontWeight: 600, textTransform: "capitalize" }}>{cat}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 100, height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3 }}>
+                    <div style={{ width: 100, height: 6, background: t.bgTag, borderRadius: 3 }}>
                       <div style={{ width: `${pct * 6}%`, height: "100%", background: t.accent, borderRadius: 3 }} />
                     </div>
                     <span style={{ fontSize: 13, fontWeight: 700, color: t.accent, minWidth: 35, textAlign: "right" }}>{pct}%</span>
@@ -764,7 +800,7 @@ function SuportePage() {
         <p style={{ fontSize: 14, color: t.textHint, margin: 0 }}>Tickets, atendimento e FAQ</p>
       </div>
 
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }} className="kpi-grid">
         <KPICard icon="📩" value={abertos} label="Tickets abertos" />
         <KPICard icon="⏳" value={emAndamento} label="Em atendimento" />
         <KPICard icon="✅" value={resolvidos} label="Resolvidos este mês" />
@@ -773,7 +809,7 @@ function SuportePage() {
 
       <div style={{ display: "flex", gap: 8 }}>
         {[["tickets","Tickets"],["faq","FAQ / Base de conhecimento"]].map(([id, label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding: "10px 18px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, background: tab === id ? "#FF6B35" : "rgba(255,255,255,0.05)", color: tab === id ? "#fff" : "rgba(255,255,255,0.45)" }}>
+          <button key={id} onClick={() => setTab(id)} style={{ padding: "10px 18px", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700, background: tab === id ? t.accent : t.bgTag, color: tab === id ? t.text : t.textSecondary }}>
             {label}
           </button>
         ))}
@@ -783,9 +819,9 @@ function SuportePage() {
         <>
           <div style={{ display: "flex", gap: 8 }}>
             {[["todos","Todos", d.tickets.length],["aberto","Abertos", abertos],["andamento","Em atendimento", emAndamento],["resolvido","Resolvidos", resolvidos]].map(([id, label, count]) => (
-              <button key={id} onClick={() => setFilter(id)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, background: filter === id ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)", color: filter === id ? "#fff" : "rgba(255,255,255,0.4)" }}>
+              <button key={id} onClick={() => setFilter(id)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, background: filter === id ? t.bgTag : t.bgCard, color: filter === id ? t.text : t.textHint }}>
                 {label}
-                <span style={{ background: "rgba(255,255,255,0.08)", borderRadius: 100, padding: "1px 7px", fontSize: 11 }}>{count}</span>
+                <span style={{ background: t.bgTag, borderRadius: 100, padding: "1px 7px", fontSize: 11 }}>{count}</span>
               </button>
             ))}
           </div>
@@ -802,7 +838,7 @@ function SuportePage() {
                         <span style={{ fontSize: 12, fontWeight: 600, color: t.tipo === "cliente" ? "#60a5fa" : "#FF6B35" }}>
                           {t.tipo === "cliente" ? "👤 Cliente" : "👷 Profissional"}
                         </span>
-                        <span style={{ background: "rgba(255,255,255,0.06)", borderRadius: 6, padding: "2px 8px", fontSize: 11, color: t.textSecondary }}>{t.categoria}</span>
+                        <span style={{ background: t.bgTag, borderRadius: 6, padding: "2px 8px", fontSize: 11, color: t.textSecondary }}>{t.categoria}</span>
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: t.text, marginBottom: 4 }}>{t.assunto}</div>
                       <div style={{ fontSize: 12, color: t.textTertiary }}>
@@ -816,7 +852,7 @@ function SuportePage() {
                   </div>
                   <div style={{ display: "flex", gap: 8, borderTop: `1px solid ${t.border}`, paddingTop: 12 }}>
                     {t.status === "aberto" && (
-                      <button style={{ background: "rgba(255,107,53,0.15)", border: "1px solid rgba(255,107,53,0.3)", borderRadius: 8, padding: "7px 14px", color: t.accent, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Assumir ticket</button>
+                      <button style={{ background: t.accentBg, border: `1px solid ${t.accentBorder}`, borderRadius: 8, padding: "7px 14px", color: t.accent, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Assumir ticket</button>
                     )}
                     {t.status === "andamento" && (
                       <button style={{ background: "#166534", border: "none", borderRadius: 8, padding: "7px 14px", color: "#4ade80", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Marcar resolvido</button>
@@ -876,7 +912,7 @@ function ConfigPage() {
         <p style={{ fontSize: 14, color: t.textHint, margin: 0 }}>Categorias, notificações e políticas</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="grid-2col">
         {[
           { icon: "📂", title: "Gestão de categorias", desc: "Adicionar, editar categorias e serviços" },
           { icon: "🔨", title: "Ferramentas obrigatórias", desc: "Definir ferramentas exigidas por categoria" },
@@ -886,8 +922,8 @@ function ConfigPage() {
           { icon: "👤", title: "Gerenciar admins", desc: "Adicionar ou remover administradores" },
         ].map(item => (
           <div key={item.title} style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: 14, padding: 22, cursor: "pointer", transition: "all 0.15s" }}
-            onMouseOver={e => { e.currentTarget.style.borderColor = "rgba(255,107,53,0.3)"; e.currentTarget.style.background = "rgba(255,107,53,0.04)"; }}
-            onMouseOut={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}>
+            onMouseOver={e => { e.currentTarget.style.borderColor = t.accentBorder; e.currentTarget.style.background = t.bgCardHover; }}
+            onMouseOut={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.background = t.bgCard; }}>
             <span style={{ fontSize: 28 }}>{item.icon}</span>
             <div style={{ fontSize: 15, fontWeight: 700, color: t.text, marginTop: 12, marginBottom: 4 }}>{item.title}</div>
             <div style={{ fontSize: 13, color: t.textHint }}>{item.desc}</div>
@@ -901,13 +937,41 @@ function ConfigPage() {
 export default function App() {
   const [active, setActive] = useState("dashboard");
   const [darkMode, setDarkMode] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const theme = darkMode ? THEMES.dark : THEMES.light;
+  const sidebarWidth = collapsed ? 68 : 240;
 
   return (
     <ThemeContext.Provider value={theme}>
+      <style>{`
+        @media (max-width: 768px) {
+          .sidebar-desktop { display: none !important; }
+          .mobile-header { display: flex !important; }
+          .main-content { margin-left: 0 !important; padding: 16px !important; }
+          .main-content table { font-size: 12px !important; }
+          .main-content table th, .main-content table td { padding: 8px 10px !important; }
+          .kpi-grid { flex-direction: column !important; }
+          .grid-2col { grid-template-columns: 1fr !important; }
+        }
+        @media (min-width: 769px) {
+          .mobile-header { display: none !important; }
+          .mobile-overlay { display: none !important; }
+        }
+      `}</style>
       <div style={{ display: "flex", minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'DM Sans',system-ui,sans-serif", transition: "background 0.3s, color 0.3s" }}>
-        <Sidebar active={active} setActive={setActive} darkMode={darkMode} setDarkMode={setDarkMode} />
-        <div style={{ marginLeft: 240, flex: 1, padding: "32px 40px" }}>
+        <div className="sidebar-desktop">
+          <Sidebar active={active} setActive={setActive} darkMode={darkMode} setDarkMode={setDarkMode} collapsed={collapsed} setCollapsed={setCollapsed} mobileOpen={false} setMobileOpen={setMobileOpen} />
+        </div>
+        {mobileOpen && (
+          <div className="mobile-overlay" style={{ position: "fixed", inset: 0, zIndex: 48 }}>
+            <Sidebar active={active} setActive={setActive} darkMode={darkMode} setDarkMode={setDarkMode} collapsed={false} setCollapsed={setCollapsed} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+          </div>
+        )}
+        <div className="main-content" style={{ marginLeft: sidebarWidth, flex: 1, padding: "32px 40px", transition: "margin-left 0.2s" }}>
+          <div className="mobile-header">
+            <MobileHeader setMobileOpen={setMobileOpen} />
+          </div>
           {active === "dashboard" && <DashboardPage setActive={setActive} />}
           {active === "profissionais" && <ProfissionaisPage />}
           {active === "clientes" && <ClientesPage />}
