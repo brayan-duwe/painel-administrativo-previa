@@ -146,9 +146,11 @@ function Sidebar({ active, setActive, darkMode, setDarkMode, collapsed, setColla
           )}
         </div>
 
-        <button onClick={() => setCollapsed(c => !c)} style={{ display: "flex", alignItems: "center", justifyContent: "center", margin: collapsed ? "0 auto 12px" : "0 12px 12px 12px", width: collapsed ? 40 : "auto", padding: "6px 10px", border: `1px solid ${t.border}`, borderRadius: 8, cursor: "pointer", fontSize: 14, color: t.textTertiary, background: t.bgCard }}>
-          {collapsed ? "→" : "← Recolher"}
-        </button>
+        {!mobileOpen && (
+          <button onClick={() => setCollapsed(c => !c)} style={{ display: "flex", alignItems: "center", justifyContent: "center", margin: collapsed ? "0 auto 12px" : "0 12px 12px 12px", width: collapsed ? 40 : "auto", padding: "6px 10px", border: `1px solid ${t.border}`, borderRadius: 8, cursor: "pointer", fontSize: 14, color: t.textTertiary, background: t.bgCard }}>
+            {collapsed ? "→" : "← Recolher"}
+          </button>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 2, padding: collapsed ? "0 8px" : "0 12px" }}>
           {MENU.map(item => (
@@ -193,10 +195,11 @@ function Sidebar({ active, setActive, darkMode, setDarkMode, collapsed, setColla
 function MobileHeader({ setMobileOpen }) {
   const t = useTheme();
   return (
-    <div style={{ display: "none", position: "sticky", top: 0, zIndex: 40, background: t.bg, borderBottom: `1px solid ${t.border}`, padding: "12px 16px", alignItems: "center", gap: 12 }}>
-      <button onClick={() => setMobileOpen(true)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: t.text, padding: 4 }}>☰</button>
+    <div style={{ position: "sticky", top: 0, zIndex: 40, background: t.bg, borderBottom: `1px solid ${t.border}`, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+      <button onClick={() => setMobileOpen(true)} style={{ background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: 10, fontSize: 22, cursor: "pointer", color: t.text, padding: "6px 10px", lineHeight: 1 }}>☰</button>
       <span style={{ fontSize: 16, fontWeight: 800, color: t.accent }}>REPAIR</span>
       <span style={{ fontSize: 16, fontWeight: 800, color: t.text }}>PRO</span>
+      <span style={{ fontSize: 9, background: t.accentBg, color: t.accent, padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>ADMIN</span>
     </div>
   );
 }
@@ -945,18 +948,17 @@ export default function App() {
   return (
     <ThemeContext.Provider value={theme}>
       <style>{`
+        .mobile-header { display: none; }
+        .mobile-overlay-bg { display: none; }
         @media (max-width: 768px) {
           .sidebar-desktop { display: none !important; }
-          .mobile-header { display: flex !important; }
+          .mobile-header { display: block !important; }
+          .mobile-overlay-bg { display: block !important; }
           .main-content { margin-left: 0 !important; padding: 16px !important; }
           .main-content table { font-size: 12px !important; }
           .main-content table th, .main-content table td { padding: 8px 10px !important; }
           .kpi-grid { flex-direction: column !important; }
           .grid-2col { grid-template-columns: 1fr !important; }
-        }
-        @media (min-width: 769px) {
-          .mobile-header { display: none !important; }
-          .mobile-overlay { display: none !important; }
         }
       `}</style>
       <div style={{ display: "flex", minHeight: "100vh", background: theme.bg, color: theme.text, fontFamily: "'DM Sans',system-ui,sans-serif", transition: "background 0.3s, color 0.3s" }}>
@@ -964,8 +966,10 @@ export default function App() {
           <Sidebar active={active} setActive={setActive} darkMode={darkMode} setDarkMode={setDarkMode} collapsed={collapsed} setCollapsed={setCollapsed} mobileOpen={false} setMobileOpen={setMobileOpen} />
         </div>
         {mobileOpen && (
-          <div className="mobile-overlay" style={{ position: "fixed", inset: 0, zIndex: 48 }}>
-            <Sidebar active={active} setActive={setActive} darkMode={darkMode} setDarkMode={setDarkMode} collapsed={false} setCollapsed={setCollapsed} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+          <div className="mobile-overlay-bg" style={{ position: "fixed", inset: 0, zIndex: 48, background: "rgba(0,0,0,0.5)" }} onClick={() => setMobileOpen(false)}>
+            <div onClick={e => e.stopPropagation()} style={{ width: 240, height: "100%" }}>
+              <Sidebar active={active} setActive={setActive} darkMode={darkMode} setDarkMode={setDarkMode} collapsed={false} setCollapsed={setCollapsed} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+            </div>
           </div>
         )}
         <div className="main-content" style={{ marginLeft: sidebarWidth, flex: 1, padding: "32px 40px", transition: "margin-left 0.2s" }}>
